@@ -2,9 +2,9 @@
 
 /**
  * Plugin Name: DSG Sticky Quick Connector
- * Description: Ein fixierter Kontaktbutton mit erweiterten Optionen.
+ * Description: Ein fixierter Kontaktbutton mit erweiterten Optionen basierend auf ACF.
  * Version: 1.0.0
- * Author: Dein Name
+ * Author: Daniel Sänger (webmaster@daniel-saenger.de)
  * License: GPL-2.0-or-later
  * Text Domain: stickyquickconnector
  */
@@ -14,14 +14,46 @@ namespace StickyQuickConnector;
 // Composer autoload
 require_once __DIR__ . '/vendor/autoload.php';
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class StickyQuickConnector
 {
     public function __construct()
     {
-        add_action('init', [$this, 'registerAssets']);
-        add_action('wp_footer', [$this, 'renderContactButton']);
-        add_action('acf/init', [$this, 'registerACFFields']);
-        add_filter('acf/validate_value/key=field_67912b13c5343', [$this, 'validateUrlField'], 10, 4);
+        register_uninstall_hook(__FILE__, [__CLASS__, 'uninstall']);
+        
+        add_action('admin_init', [$this, 'checkDependencies']);
+        if ($this->isAcfActive()) {
+            add_action('init', [$this, 'registerAssets']);
+            add_action('wp_footer', [$this, 'renderContactButton']);
+            add_action('acf/init', [$this, 'registerACFFields']);
+            add_action('admin_menu', [$this, 'addOptionsPage']);
+            add_filter('acf/validate_value/key=field_67912b13c5343', [$this, 'validateUrlField'], 10, 4);
+        }
+    }
+
+    public static function uninstall()
+    {
+        // This method is required for the uninstall hook, but the actual cleanup
+        // is handled in uninstall.php
+    }
+
+    private function isAcfActive()
+    {
+        return class_exists('ACF');
+    }
+
+    public function checkDependencies()
+    {
+        if (!$this->isAcfActive()) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p>' . 
+                     __('Sticky Quick Connector benötigt das Plugin "Advanced Custom Fields" (ACF). Bitte installieren und aktivieren Sie ACF.', 'sticky-quick-connector') . 
+                     '</p></div>';
+            });
+        }
     }
 
     /**
@@ -32,15 +64,6 @@ class StickyQuickConnector
         wp_register_style('custom-connector-styles', plugins_url('assets/css/styles.css', __FILE__), [], '1.0.0');
         wp_register_script('custom-connector-scripts', plugins_url('assets/js/scripts.js', __FILE__), [], '1.0.0', true);
 
-        // Add UIkit if not already included in your theme
-        wp_register_style('uikit', 'https://cdn.jsdelivr.net/npm/uikit@3.16.19/dist/css/uikit.min.css', [], '3.16.19');
-        wp_register_script('uikit', 'https://cdn.jsdelivr.net/npm/uikit@3.16.19/dist/js/uikit.min.js', [], '3.16.19', true);
-        wp_register_script('uikit-icons', 'https://cdn.jsdelivr.net/npm/uikit@3.16.19/dist/js/uikit-icons.min.js', ['uikit'], '3.16.19', true);
-
-        // Enqueue UIkit when rendering the button
-        wp_enqueue_style('uikit');
-        wp_enqueue_script('uikit');
-        wp_enqueue_script('uikit-icons');
 
         // Add defer attribute to the custom JS for better performance
         add_filter('script_loader_tag', function ($tag, $handle) {
@@ -577,6 +600,11 @@ class StickyQuickConnector
         }
 
         return $valid;
+    }
+
+    public function addOptionsPage()
+    {
+        // Implementation of addOptionsPage method
     }
 }
 
