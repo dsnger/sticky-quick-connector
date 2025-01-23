@@ -1,0 +1,90 @@
+/* Hauptbutton */
+.fixed-contact-button .main-button {
+  position: relative;
+  z-index: 9999;
+}
+.fixed-contact-button .main-button,
+.fixed-contact-button .contact-option {
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 2rem;
+  border-radius: 50%; 
+  width: 60px; 
+  height: 60px; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .fixed-contact-button .main-button,
+  .fixed-contact-button .contact-option {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+}
+
+.fixed-contact-button .main-button:hover,
+.fixed-contact-button .contact-option:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.main-button__label, 
+.contact-option__label {
+  font-size: 14px;
+}
+
+.fixed-contact-button .contact-options {
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s ease;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin-bottom: 10px;
+}
+
+.fixed-contact-button.top .contact-options {
+  margin-bottom: 0;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .fixed-contact-button .contact-options {
+    margin-bottom: 5px;
+  }
+  .fixed-contact-button.top .contact-options {
+    margin-bottom: 0;
+    margin-top: 5px;
+  }
+}
+
+.fixed-contact-button .contact-option {
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.5) translateY(0);
+  transform-origin: bottom center;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.fixed-contact-button.active .contact-option {
+  visibility: visible;
+}
+
+.fixed-contact-button .icon-active {
+  display: none;
+}
+.fixed-contact-button.active .icon-active {
+  display: inline-block!important;
+}
+
+.fixed-contact-button.active .icon-default {
+  display: none;
+}
