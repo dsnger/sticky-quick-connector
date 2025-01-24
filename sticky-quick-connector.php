@@ -23,13 +23,13 @@ class StickyQuickConnector
     public function __construct()
     {
         register_uninstall_hook(__FILE__, [__CLASS__, 'uninstall']);
-        
         add_action('admin_init', [$this, 'checkDependencies']);
         if ($this->isAcfActive()) {
             add_action('init', [$this, 'registerAssets']);
             add_action('wp_footer', [$this, 'renderContactButton']);
             add_action('acf/init', [$this, 'registerACFFields']);
             add_action('admin_menu', [$this, 'addOptionsPage']);
+            add_action('wp_head', [$this, 'addCustomCSS']);
             add_filter('acf/validate_value/key=field_67912b13c5343', [$this, 'validateUrlField'], 10, 4);
         }
     }
@@ -48,10 +48,10 @@ class StickyQuickConnector
     public function checkDependencies()
     {
         if (!$this->isAcfActive()) {
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-error"><p>' . 
-                     __('Sticky Quick Connector benötigt das Plugin "Advanced Custom Fields" (ACF). Bitte installieren und aktivieren Sie ACF.', 'sticky-quick-connector') . 
-                     '</p></div>';
+            add_action('admin_notices', function () {
+                echo '<div class="notice notice-error"><p>' .
+                    __('Sticky Quick Connector benötigt das Plugin "Advanced Custom Fields" (ACF). Bitte installieren und aktivieren Sie ACF.', 'sticky-quick-connector') .
+                    '</p></div>';
             });
         }
     }
@@ -227,6 +227,18 @@ class StickyQuickConnector
                         ]
                     ],
                     [
+                        'key' => 'field_67934e6f1c421',
+                        'label' => 'Benutzerdefiniertes CSS',
+                        'name' => 'sqc_custom_css',
+                        'type' => 'acfe_code_editor',
+                        'instructions' => 'Fügen Sie hier benutzerdefiniertes CSS hinzu. Beispiel: .fixed-contact-button { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }',
+                        'placeholder' => '',
+                        'maxlength' => '',
+                        'rows' => 6,
+                        'new_lines' => '',
+                        'wrapper' => ['width' => '100'],
+                    ],
+                    [
                         'key' => 'field_67922b393b8ca',
                         'label' => 'Hauptbutton',
                         'name' => '',
@@ -375,6 +387,7 @@ class StickyQuickConnector
                             ],
                         ],
                     ],
+                
                 ],
                 'location' => [
                     [
@@ -491,6 +504,7 @@ class StickyQuickConnector
         echo '<div id="contact-options" class="contact-options" style="position: absolute; right: 0; display: none;">';
 
         if ($contacts) {
+
             foreach ($contacts as $index => $contact) {
                 $url = $contact['url'];
                 if (!$this->validateUrl($url)) {
@@ -605,6 +619,19 @@ class StickyQuickConnector
     public function addOptionsPage()
     {
         // Implementation of addOptionsPage method
+    }
+
+    public function addCustomCSS()
+    {
+        $button_active = get_field('sqc_activate_button', 'option');
+        if (!$button_active) return;
+
+        $custom_css = get_field('sqc_custom_css', 'option');
+        if ($custom_css) {
+            echo "\n<style id='sticky-quick-connector-custom-css'>\n";
+            echo wp_strip_all_tags($custom_css) . "\n";
+            echo "</style>\n";
+        }
     }
 }
 
