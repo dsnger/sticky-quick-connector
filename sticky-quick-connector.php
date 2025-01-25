@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Sticky Quick Connector (DSG Theme)
  * Description: A fixed contact button with extended options based on ACF.
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: Daniel Sänger (webmaster@daniel-saenger.de)
  * License: private
  * Text Domain: stickyquickconnector
@@ -20,6 +20,8 @@ if (!defined('ABSPATH')) {
 
 class StickyQuickConnector
 {
+    private $import_export;
+
     public function __construct()
     {
         register_uninstall_hook(__FILE__, [__CLASS__, 'uninstall']);
@@ -28,9 +30,12 @@ class StickyQuickConnector
             add_action('init', [$this, 'registerAssets']);
             add_action('wp_footer', [$this, 'renderContactButton']);
             add_action('acf/init', [$this, 'registerACFFields']);
-            add_action('admin_menu', [$this, 'addOptionsPage']);
             add_action('wp_head', [$this, 'addCustomCSS']);
             add_filter('acf/validate_value/key=field_67912b13c5343', [$this, 'validateUrlField'], 10, 4);
+
+            // Initialize Import/Export functionality
+            require_once __DIR__ . '/includes/class-import-export.php';
+            $this->import_export = new ImportExport();
         }
     }
 
@@ -446,13 +451,26 @@ class StickyQuickConnector
 
             if (function_exists('acf_add_options_page')) {
                 acf_add_options_page([
-                    'page_title' => 'Quick Connector Einstellungen',
+                    'page_title' => 'Quick Connector',
                     'menu_title' => 'Quick Connector',
                     'menu_slug' => 'sticky-quick-connector-settings',
+                    'parent_slug' => '',
                     'capability' => 'edit_posts',
                     'redirect' => false,
                     'icon_url' => 'dashicons-admin-comments',
+                    'position' => 30,
+                    'update_button' => 'Speichern',
+                    'updated_message' => 'Einstellungen gespeichert',
                 ]);
+
+                // // Add the main settings as a submenu
+                // acf_add_options_sub_page([
+                //     'page_title' => 'Einstellungen',
+                //     'menu_title' => 'Einstellungen',
+                //     'parent_slug' => 'sticky-quick-connector',
+                //     'menu_slug' => 'sqc-settings',
+                //     'capability' => 'edit_posts',
+                // ]);
             }
         }
     }
@@ -718,10 +736,6 @@ class StickyQuickConnector
         return $valid;
     }
 
-    public function addOptionsPage()
-    {
-        // Implementation of addOptionsPage method
-    }
 
     public function addCustomCSS()
     {

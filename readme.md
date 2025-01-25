@@ -23,6 +23,10 @@ Sticky Quick Connector provides an easy way to add floating, always-visible butt
 
 ## Changelog
 
+### 1.0.5
+
+- Added Import/Export functionality
+
 ### 1.0.4
 
 - Added icon support for main button
