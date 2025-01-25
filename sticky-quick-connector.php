@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Sticky Quick Connector (DSG Theme)
  * Description: A fixed contact button with extended options based on ACF.
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: Daniel Sänger (webmaster@daniel-saenger.de)
  * License: private
  * Text Domain: stickyquickconnector
@@ -13,6 +13,13 @@ namespace StickyQuickConnector;
 
 // Composer autoload
 require_once __DIR__ . '/vendor/autoload.php';
+
+// Initialize GitHub Updater
+require_once __DIR__ . '/includes/class-github-updater.php';
+if (is_admin()) {
+    $updater = new GitHubUpdater(__FILE__);
+    $updater->initialize();
+}
 
 if (!defined('ABSPATH')) {
     exit;
