@@ -323,7 +323,7 @@ class StickyQuickConnector
                                 'label' => 'Icon Bild (Aktiv)',
                                 'name' => 'icon_image_active',
                                 'type' => 'image',
-                                'instructions' => 'Bild für den aktiven Zustand.',
+                                'instructions' => 'Alternativ zum Icon kann hier ein Bild hochgeladen werden.',
                                 'required' => 0,
                                 'return_format' => 'array',
                                 'preview_size' => 'thumbnail',
