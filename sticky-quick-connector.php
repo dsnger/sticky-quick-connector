@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Plugin Name: DSG Sticky Quick Connector
- * Description: Ein fixierter Kontaktbutton mit erweiterten Optionen basierend auf ACF.
- * Version: 1.0.0
+ * Plugin Name: Sticky Quick Connector (DSG Theme)
+ * Description: A fixed contact button with extended options based on ACF.
+ * Version: 1.0.2
  * Author: Daniel Sänger (webmaster@daniel-saenger.de)
- * License: GPL-2.0-or-later
+ * License: private
  * Text Domain: stickyquickconnector
  */
 
@@ -42,7 +42,7 @@ class StickyQuickConnector
 
     private function isAcfActive()
     {
-        return class_exists('ACF');
+        return class_exists('ACF') && class_exists('ACFE');
     }
 
     public function checkDependencies()
@@ -268,7 +268,7 @@ class StickyQuickConnector
                                 'type' => 'text',
                                 'instructions' => 'Gib das <a href="https://iconify.design/" target="_blank">Iconify-Icon</a> oder SVG für den Hauptbutton an (z.B. mdi:menu).',
                                 'required' => 0,
-                                'default_value' => 'mdi:menu',
+                                'default_value' => 'mdi:chat-alert',
                                 'wrapper' => ['width' => '25'],
                             ],
                             [
@@ -384,6 +384,14 @@ class StickyQuickConnector
                                 'enable_opacity' => 1,
                                 'return_format' => 'string',
                                 'default_value' => 'rgba(255, 255, 255, 1)',
+                            ],
+                            [
+                                'key' => 'field_6794d5d349784',
+                                'label' => 'HTML Attribute',
+                                'name' => 'html_attributes',
+                                'type' => 'text',
+                                'instructions' => 'Optionale HTML-Attribute (z.B. uk-toggle="target: #modal" oder onClick="myFunction()")',
+                                'placeholder' => '',
                             ],
                         ],
                     ],
@@ -504,22 +512,27 @@ class StickyQuickConnector
         echo '<div id="contact-options" class="contact-options">';
 
         if ($contacts) {
-
             foreach ($contacts as $index => $contact) {
                 $url = $contact['url'];
-                if (!$this->validateUrl($url)) {
+                // Skip if both URL is invalid AND there are no HTML attributes
+                if (!$this->validateUrl($url) && empty($contact['html_attributes'])) {
                     continue;
                 }
 
                 $contact_bg_color = $contact['bg_color'] ?: 'rgba(0, 123, 255, 1)';
                 $contact_text_color = $contact['text_color'] ?: 'rgba(255, 255, 255, 1)';
 
-                echo '<a href="' . esc_url($contact['url']) . '" 
+                echo '<a ' . (!empty($url) ? 'href="' . esc_url($url) . '"' : '') . ' 
                     class="contact-option" 
                     style="opacity: 0; background-color: ' . esc_attr($contact_bg_color) . '; color: ' . esc_attr($contact_text_color) . ';"';
 
                 if (!empty($contact['label'])) {
                     echo ' uk-tooltip="title: ' . esc_attr($contact['label']) . '; pos: left"';
+                }
+
+                // Add the custom HTML attributes if they exist
+                if (!empty($contact['html_attributes'])) {
+                    echo ' ' . wp_kses_post($contact['html_attributes']);
                 }
 
                 echo '>';
@@ -588,15 +601,24 @@ class StickyQuickConnector
      */
     private function validateUrl($url)
     {
+        // If URL is empty, check if we have HTML attributes in the parent array
+        if (empty($url)) {
+            // Get the current contact option being validated
+            $current = current(get_field('sqc_connectors', 'option') ?: []);
+            if (!empty($current['html_attributes'])) {
+                return true; // Allow empty URL if HTML attributes exist
+            }
+        }
+
         if (filter_var($url, FILTER_VALIDATE_URL)) {
-            return true; // Gültige URL
+            return true; // Valid URL
         }
 
         if (preg_match('/^(tel:|mailto:)/', $url)) {
-            return true; // Gültige tel: oder mailto: Links
+            return true; // Valid tel: or mailto: links
         }
 
-        return false; // Ungültige URL
+        return false; // Invalid URL
     }
 
     /**
@@ -608,9 +630,18 @@ class StickyQuickConnector
             return $valid; // Skip if already invalid
         }
 
+        // Get the HTML attributes value from the same repeater row
+        $row = $_POST['acf'][$field['parent']];
+        $html_attributes = $row['html_attributes'] ?? '';
+
+        // Allow empty URL if HTML attributes exist
+        if (empty($value) && !empty($html_attributes)) {
+            return true;
+        }
+
         // Allow valid URLs, tel: and mailto: links
-        if (!filter_var($value, FILTER_VALIDATE_URL) && !preg_match('/^(tel:|mailto:)/', $value)) {
-            $valid = 'Bitte eine gültige URL, eine Telefonnummer (tel:) oder eine E-Mail-Adresse (mailto:) eingeben.';
+        if (!empty($value) && !filter_var($value, FILTER_VALIDATE_URL) && !preg_match('/^(tel:|mailto:)/', $value)) {
+            $valid = 'Bitte eine gültige URL, eine Telefonnummer (tel:) oder eine E-Mail-Adresse (mailto:) eingeben. Die URL kann leer sein, wenn HTML-Attribute angegeben sind.';
         }
 
         return $valid;
