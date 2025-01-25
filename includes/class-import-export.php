@@ -34,26 +34,26 @@ class ImportExport {
     public function renderImportExportPage() {
         ?>
         <div class="wrap">
-            <h1>Quick Connector Import/Export</h1>
+            <h1>Sticky Quick Connector Import/Export</h1>
 
             <div class="card" style="max-width: 800px; margin-top: 20px;">
-                <h2>Export Settings</h2>
-                <p>Export all Quick Connector settings as a JSON file.</p>
+                <h2>Einstellungen exportieren</h2>
+                <p>Exportiere alle Quick Connector Einstellungen als JSON-Datei.</p>
                 <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
                     <?php wp_nonce_field('sqc_export_nonce', 'sqc_export_nonce'); ?>
                     <input type="hidden" name="action" value="sqc_export_settings">
-                    <button type="submit" class="button button-primary">Export Settings</button>
+                    <button type="submit" class="button button-secondary">Einstellungen exportieren</button>
                 </form>
             </div>
 
             <div class="card" style="max-width: 800px; margin-top: 20px;">
-                <h2>Import Settings</h2>
-                <p>Import Quick Connector settings from a JSON file. This will overwrite all existing settings.</p>
+                <h2>Einstellungen importieren</h2>
+                <p>Importiere Quick Connector Einstellungen aus einer JSON-Datei. Dies überschreibt alle bestehenden Einstellungen.</p>
                 <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" enctype="multipart/form-data">
                     <?php wp_nonce_field('sqc_import_nonce', 'sqc_import_nonce'); ?>
                     <input type="hidden" name="action" value="sqc_import_settings">
                     <input type="file" name="import_file" accept=".json" required>
-                    <p><button type="submit" class="button button-primary">Import Settings</button></p>
+                    <p><button type="submit" class="button button-primary">Einstellungen importieren</button></p>
                 </form>
             </div>
         </div>
@@ -151,22 +151,22 @@ class ImportExport {
         }
 
         if (isset($_GET['import-success'])) {
-            echo '<div class="notice notice-success is-dismissible"><p>Settings imported successfully!</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>Einstellungen erfolgreich importiert!</p></div>';
         }
 
         if (isset($_GET['import-error'])) {
             $error = $_GET['import-error'];
-            $message = 'An error occurred during import.';
+            $message = 'Ein Fehler ist aufgetreten.';
             
             switch ($error) {
                 case 'no-file':
-                    $message = 'No file was uploaded.';
+                    $message = 'Keine Datei hochgeladen.';
                     break;
                 case 'upload-failed':
-                    $message = 'File upload failed.';
+                    $message = 'Dateiupload fehlgeschlagen.';
                     break;
                 case 'invalid-json':
-                    $message = 'Invalid JSON file.';
+                    $message = 'Ungültige JSON-Datei.';
                     break;
             }
             
