@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Sticky Quick Connector (DSG Theme)
  * Description: A fixed contact button with extended options based on ACF.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Daniel Sänger (webmaster@daniel-saenger.de)
  * License: private
  * Text Domain: stickyquickconnector
@@ -259,7 +259,7 @@ class StickyQuickConnector
                                 'instructions' => 'Optional: Beschriftung für den Hauptbutton.',
                                 'required' => 0,
                                 'default_value' => 'Kontakt',
-                                'wrapper' => ['width' => '25'],
+                                'wrapper' => ['width' => '20'],
                             ],
                             [
                                 'key' => 'field_6791fb35a0a03',
@@ -269,8 +269,21 @@ class StickyQuickConnector
                                 'instructions' => 'Gib das <a href="https://iconify.design/" target="_blank">Iconify-Icon</a> oder SVG für den Hauptbutton an (z.B. mdi:menu).',
                                 'required' => 0,
                                 'default_value' => 'mdi:chat-alert',
-                                'wrapper' => ['width' => '25'],
+                                'wrapper' => ['width' => '20'],
                             ],
+                            [
+                                'key' => 'field_6794dfb9ee584',
+                                'label' => 'Icon Bild',
+                                'name' => 'icon_image',
+                                'type' => 'image',
+                                'instructions' => 'Alternativ zum Icon kann hier ein Bild hochgeladen werden.',
+                                'required' => 0,
+                                'return_format' => 'array',
+                                'preview_size' => 'thumbnail',
+                                'library' => 'all',
+                                'wrapper' => ['width' => '20'],
+                            ],
+
                             [
                                 'key' => 'field_6791fb2b96f39',
                                 'label' => 'Hintergrundfarbe',
@@ -281,7 +294,7 @@ class StickyQuickConnector
                                 'enable_opacity' => 1,
                                 'return_format' => 'string',
                                 'default_value' => 'rgb(246,109,47)',
-                                'wrapper' => ['width' => '25'],
+                                'wrapper' => ['width' => '20'],
                             ],
                             [
                                 'key' => 'field_6791fb2173265',
@@ -293,7 +306,7 @@ class StickyQuickConnector
                                 'enable_opacity' => 1,
                                 'return_format' => 'string',
                                 'default_value' => 'rgba(255, 255, 255)',
-                                'wrapper' => ['width' => '25'],
+                                'wrapper' => ['width' => '20'],
                             ],
                             [
                                 'key' => 'field_6791fb35a0a04',
@@ -303,7 +316,19 @@ class StickyQuickConnector
                                 'instructions' => 'Gib das <a href="https://iconify.design/" target="_blank">Iconify-Icon</a> oder SVG für den aktiven Zustand an (z.B. mdi:close).',
                                 'required' => 0,
                                 'default_value' => 'mdi:close',
-                                'wrapper' => ['width' => '33'],
+                                'wrapper' => ['width' => '25'],
+                            ],
+                            [
+                                'key' => 'field_6794e01bcd2f9',
+                                'label' => 'Icon Bild (Aktiv)',
+                                'name' => 'icon_image_active',
+                                'type' => 'image',
+                                'instructions' => 'Bild für den aktiven Zustand.',
+                                'required' => 0,
+                                'return_format' => 'array',
+                                'preview_size' => 'thumbnail',
+                                'library' => 'all',
+                                'wrapper' => ['width' => '25'],
                             ],
                             [
                                 'key' => 'field_6791fb2b96f40',
@@ -315,7 +340,7 @@ class StickyQuickConnector
                                 'enable_opacity' => 1,
                                 'return_format' => 'string',
                                 'default_value' => 'rgb(75,48,138)',
-                                'wrapper' => ['width' => '33'],
+                                'wrapper' => ['width' => '25'],
                             ],
                             [
                                 'key' => 'field_679213bac8cc0',
@@ -327,7 +352,7 @@ class StickyQuickConnector
                                 'enable_opacity' => 1,
                                 'return_format' => 'string',
                                 'default_value' => 'rgba(255, 255, 255)',
-                                'wrapper' => ['width' => '33'],
+                                'wrapper' => ['width' => '25'],
                             ],
                         ],
                     ],
@@ -366,6 +391,17 @@ class StickyQuickConnector
                                 'instructions' => 'Name des <a href="https://iconify.design/" target="_blank">Iconify-Icon</a> (z.B. mdi:email) oder SVG.',
                             ],
                             [
+                                'key' => 'field_6794dfc6476b5',
+                                'label' => 'Icon Bild',
+                                'name' => 'icon_image',
+                                'type' => 'image',
+                                'instructions' => 'Alternativ zum Icon kann hier ein Bild hochgeladen werden.',
+                                'required' => 0,
+                                'return_format' => 'array',
+                                'preview_size' => 'thumbnail',
+                                'library' => 'all',
+                            ],
+                            [
                                 'key' => 'field_6791fb161a539',
                                 'label' => 'Hintergrundfarbe',
                                 'name' => 'bg_color',
@@ -395,7 +431,7 @@ class StickyQuickConnector
                             ],
                         ],
                     ],
-                
+
                 ],
                 'location' => [
                     [
@@ -426,28 +462,45 @@ class StickyQuickConnector
      */
     public function renderContactButton()
     {
+        // Ensure button is active
         $button_active = get_field('sqc_activate_button', 'option');
         if (!$button_active) return;
 
-        $exclude_pages = get_field('sqc_exclude_pages', 'option');
-        $include_pages = get_field('sqc_include_pages', 'option');
-        $position_x = get_field('sqc_position_x', 'option');
-        $position_y = get_field('sqc_position_y', 'option');
-        $position_x_alignment = get_field('sqc_position_x_alignment', 'option') ?: 'right';
-        $position_y_alignment = get_field('sqc_position_y_alignment', 'option') ?: 'bottom';
-        $current_post_id = get_the_ID();
+        // Get main settings with defaults
+        $main_button = get_field('sqc_main_button', 'option') ?: [];
+        $contacts = get_field('sqc_connectors', 'option') ?: [];
 
-        // Exclude/Include logic
-        if (is_array($exclude_pages) && in_array($current_post_id, $exclude_pages)) return;
-        if (is_array($include_pages) && !empty($include_pages) && !in_array($current_post_id, $include_pages)) return;
-
-        // Get main button settings with default values
-        $main_button = get_field('sqc_main_button', 'option');
-        $contacts = get_field('sqc_connectors', 'option');
-
-        if (!is_array($main_button) || !is_array($contacts)) {
+        // Validate required data
+        if (empty($main_button) || !is_array($main_button) || empty($contacts) || !is_array($contacts)) {
             return;
         }
+
+        // Set defaults for main button
+        $main_button = array_merge([
+            'icon' => '',
+            'icon_active' => '',
+            'icon_image' => [],
+            'icon_image_active' => [],
+            'bg_color' => 'rgb(246,109,47)',
+            'bg_color_active' => 'rgb(75,48,138)', 
+            'text_color' => 'rgba(255, 255, 255)',
+            'text_color_active' => 'rgba(255, 255, 255)',
+            'label' => ''
+        ], $main_button);
+
+        // Get positioning with defaults
+        $position_x = get_field('sqc_position_x', 'option') ?: 20;
+        $position_y = get_field('sqc_position_y', 'option') ?: 20;
+        $position_x_alignment = get_field('sqc_position_x_alignment', 'option') ?: 'right';
+        $position_y_alignment = get_field('sqc_position_y_alignment', 'option') ?: 'bottom';
+
+        // Exclude/Include logic
+        $exclude_pages = get_field('sqc_exclude_pages', 'option');
+        $include_pages = get_field('sqc_include_pages', 'option');
+        $current_post_id = get_the_ID();
+
+        if (is_array($exclude_pages) && in_array($current_post_id, $exclude_pages)) return;
+        if (is_array($include_pages) && !empty($include_pages) && !in_array($current_post_id, $include_pages)) return;
 
         // Enqueue styles and scripts
         wp_enqueue_style('custom-connector-styles');
@@ -502,9 +555,15 @@ class StickyQuickConnector
         }
         echo '>';
 
-        if ($main_button['icon']) {
+        if (!empty($main_button['icon'])) {
             echo '<span class="iconify icon-default" data-icon="' . esc_attr($main_button['icon']) . '"></span>';
+        } elseif (!empty($main_button['icon_image'])) {
+            echo '<img src="' . esc_url($main_button['icon_image']['url']) . '" alt="' . esc_attr($main_button['icon_image']['alt']) . '" class="icon-image icon-default" />';
+        }
+        if (!empty($main_button['icon_active'])) {
             echo '<span class="iconify icon-active" data-icon="' . esc_attr($main_button['icon_active']) . '" style="display: none;"></span>';
+        } elseif (!empty($main_button['icon_image_active'])) {
+            echo '<img src="' . esc_url($main_button['icon_image_active']['url']) . '" alt="' . esc_attr($main_button['icon_image_active']['alt']) . '" class="icon-image icon-active" style="display: none;" />';
         }
         echo '</button>';
 
@@ -512,17 +571,27 @@ class StickyQuickConnector
         echo '<div id="contact-options" class="contact-options">';
 
         if ($contacts) {
-            foreach ($contacts as $index => $contact) {
-                $url = $contact['url'];
+            foreach ($contacts as $contact) {
+                // Set defaults for each contact
+                $contact = array_merge([
+                    'url' => '',
+                    'icon' => '',
+                    'icon_image' => [],
+                    'bg_color' => 'rgba(0, 123, 255, 1)',
+                    'text_color' => 'rgba(255, 255, 255, 1)',
+                    'label' => '',
+                    'html_attributes' => ''
+                ], $contact);
+
                 // Skip if both URL is invalid AND there are no HTML attributes
-                if (!$this->validateUrl($url) && empty($contact['html_attributes'])) {
+                if (!$this->validateUrl($contact['url']) && empty($contact['html_attributes'])) {
                     continue;
                 }
 
                 $contact_bg_color = $contact['bg_color'] ?: 'rgba(0, 123, 255, 1)';
                 $contact_text_color = $contact['text_color'] ?: 'rgba(255, 255, 255, 1)';
 
-                echo '<a ' . (!empty($url) ? 'href="' . esc_url($url) . '"' : '') . ' 
+                echo '<a ' . (!empty($contact['url']) ? 'href="' . esc_url($contact['url']) . '"' : '') . ' 
                     class="contact-option" 
                     style="opacity: 0; background-color: ' . esc_attr($contact_bg_color) . '; color: ' . esc_attr($contact_text_color) . ';"';
 
@@ -539,6 +608,8 @@ class StickyQuickConnector
 
                 if (!empty($contact['icon'])) {
                     echo '<span class="iconify" data-icon="' . esc_attr($contact['icon']) . '" data-inline="false"></span>';
+                } elseif (!empty($contact['icon_image'])) {
+                    echo '<img src="' . esc_url($contact['icon_image']['url']) . '" alt="' . esc_attr($contact['icon_image']['alt']) . '" class="icon-image" />';
                 }
 
                 echo '</a>';
@@ -627,12 +698,12 @@ class StickyQuickConnector
     public function validateUrlField($valid, $value, $field, $input)
     {
         if (!$valid) {
-            return $valid; // Skip if already invalid
+            return $valid;
         }
 
-        // Get the HTML attributes value from the same repeater row
-        $row = $_POST['acf'][$field['parent']];
-        $html_attributes = $row['html_attributes'] ?? '';
+        // Safely get HTML attributes
+        $row = isset($_POST['acf'][$field['parent']]) ? $_POST['acf'][$field['parent']] : [];
+        $html_attributes = isset($row['html_attributes']) ? $row['html_attributes'] : '';
 
         // Allow empty URL if HTML attributes exist
         if (empty($value) && !empty($html_attributes)) {
@@ -641,7 +712,7 @@ class StickyQuickConnector
 
         // Allow valid URLs, tel: and mailto: links
         if (!empty($value) && !filter_var($value, FILTER_VALIDATE_URL) && !preg_match('/^(tel:|mailto:)/', $value)) {
-            $valid = 'Bitte eine gültige URL, eine Telefonnummer (tel:) oder eine E-Mail-Adresse (mailto:) eingeben. Die URL kann leer sein, wenn HTML-Attribute angegeben sind.';
+            return 'Bitte eine gültige URL, eine Telefonnummer (tel:) oder eine E-Mail-Adresse (mailto:) eingeben. Die URL kann leer sein, wenn HTML-Attribute angegeben sind.';
         }
 
         return $valid;
