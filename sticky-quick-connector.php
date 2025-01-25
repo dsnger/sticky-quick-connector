@@ -97,7 +97,7 @@ class StickyQuickConnector
                         'name' => 'sqc_activate_button',
                         'type' => 'true_false',
                         'instructions' => 'Aktiviere oder deaktiviere den Quick Connector Button.',
-                        'default_value' => 1,
+                        'default_value' => 0,
                         'ui' => 1,
                         'wrapper' => ['width' => '20'],
                     ],
