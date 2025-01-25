@@ -501,7 +501,7 @@ class StickyQuickConnector
         echo '</button>';
 
         // Contact options with left tooltips
-        echo '<div id="contact-options" class="contact-options" style="position: absolute; right: 0; display: none;">';
+        echo '<div id="contact-options" class="contact-options">';
 
         if ($contacts) {
 

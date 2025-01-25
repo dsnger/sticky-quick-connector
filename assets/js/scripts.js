@@ -7,46 +7,49 @@ document.addEventListener("DOMContentLoaded", function () {
 
   toggleButton.addEventListener("click", function () {
     const isActive = container.classList.contains("active");
-    
+    const mainButtonRect = container.getBoundingClientRect();
+
     if (!isActive) {
-      contactOptions.style.display = "flex";
+      // contactOptions.style.display = "flex";
       container.classList.add("active");
       if (positionY === 'top') {
-        contactOptions.style.bottom = "auto";
         container.classList.add("top");
       }
-      
+
       toggleButton.style.backgroundColor = toggleButton.dataset.bgActive;
       toggleButton.style.color = toggleButton.dataset.textActive;
-      
+
       setTimeout(() => {
         options.forEach((option, index) => {
-          const buttonHeight = option.offsetHeight;
-          const gap = 10;
-          let offset = -1 * (buttonHeight + gap) * (index + 1);
+          const optionRect = option.getBoundingClientRect();
+          optionRect.height = optionRect.height * 2;
+          const gap = 14;
+          let offset = -1 * ((optionRect.height + gap) * index) - (mainButtonRect.height + gap);
+
           if (positionY === 'top') {
-            offset = offset * -1;
+            offset = (mainButtonRect.height + gap) + (optionRect.height + gap) * index;
           }
-          
+
+          option.style.setProperty('--translateY', `${offset}px`);
           option.style.opacity = "1";
-          option.style.transform = `scale(1) translateY(${offset}px)`;
+          option.style.transform = `translate(-50%, ${offset}px) scale(1)`;
           option.style.transitionDelay = `${index * 0.1}s`;
         });
       }, 10);
     } else {
       container.classList.remove("active");
-      
+
       toggleButton.style.backgroundColor = toggleButton.dataset.bgDefault;
       toggleButton.style.color = toggleButton.dataset.textDefault;
-      
+
       options.forEach((option, index) => {
         option.style.opacity = "0";
-        option.style.transform = "scale(0.5) translateY(0)";
+        option.style.transform = "translate(-50%,0) scale(0.5)";
         option.style.transitionDelay = `${(options.length - index - 1) * 0.1}s`;
       });
 
       setTimeout(() => {
-        contactOptions.style.display = "none";
+        // contactOptions.style.display = "none";
         options.forEach(option => {
           option.style.transitionDelay = "0s";
         });
