@@ -96,7 +96,7 @@ class GitHubUpdater
     $current_version = $transient->checked[$this->basename];
 
     // Add debug logging
-    error_log('GitHub Update Check - Current Version: ' . $current_version . ', Latest Version: ' . $latest_version);
+    //error_log('GitHub Update Check - Current Version: ' . $current_version . ', Latest Version: ' . $latest_version);
 
     $doUpdate = version_compare($latest_version, $current_version, 'gt');
 
@@ -116,7 +116,7 @@ class GitHubUpdater
       $transient->response[$this->basename] = $obj;
 
       // Add debug logging
-      error_log('GitHub Update Available - Package URL: ' . $package);
+      //error_log('GitHub Update Available - Package URL: ' . $package);
     }
 
     return $transient;
