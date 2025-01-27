@@ -58,13 +58,13 @@ class GitHubUpdater
       $response = wp_remote_get($request_uri, $args);
 
       if (is_wp_error($response)) {
-        error_log('GitHub Updater Error: ' . $response->get_error_message());
+        //error_log('GitHub Updater Error: ' . $response->get_error_message());
         return false;
       }
 
       $response_code = wp_remote_retrieve_response_code($response);
       if ($response_code !== 200) {
-        error_log('GitHub Updater Error: Response code ' . $response_code);
+        //error_log('GitHub Updater Error: Response code ' . $response_code);
         return false;
       }
 
