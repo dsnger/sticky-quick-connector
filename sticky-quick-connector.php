@@ -92,6 +92,33 @@ class StickyQuickConnector
     }
 
     /**
+     * Calculate fluid size values for CSS clamp
+     * 
+     * @param int $minSize Minimum size in pixels
+     * @param int $maxSize Maximum size in pixels
+     * @param int $minVw Minimum viewport width in pixels
+     * @param int $maxVw Maximum viewport width in pixels
+     * @return array Array containing min, max, and preferred values for clamp
+     */
+    private function calculateFluidSize($minSize, $maxSize, $minVw = 420, $maxVw = 1600)
+    {
+        // Calculate the slope
+        $slope = ($maxSize - $minSize) / ($maxVw - $minVw);
+        
+        // Convert to vw units
+        $vw_value = round($slope * 100, 3);
+        
+        // Calculate the y-intercept
+        $intercept = round($minSize - ($slope * $minVw), 2);
+        
+        return [
+            'min' => $minSize . 'px',
+            'preferred' => $intercept . 'px + ' . $vw_value . 'vw',
+            'max' => $maxSize . 'px'
+        ];
+    }
+
+    /**
      * Render the main contact button and options.
      */
     public function renderContactButton()
@@ -105,15 +132,17 @@ class StickyQuickConnector
         $contacts = get_field('sqc_connectors', 'option') ?: [];
 
         // Get size values directly from ACF options
-        $size_min = get_field('sqc_size_min', 'option') ? intval(get_field('sqc_size_min', 'option')) : 32;
-        $size_max = get_field('sqc_size_max', 'option') ? intval(get_field('sqc_size_max', 'option')) : 60;
+        $size_min = get_field('sqc_size_min', 'option') ? intval(get_field('sqc_size_min', 'option')) : 48;
+        $size_max = get_field('sqc_size_max', 'option') ? intval(get_field('sqc_size_max', 'option')) : 72;
 
         // CSS Variables for dynamic sizing
         echo '<style>';
         echo ':root {';
         echo '--sqc-size-min: ' . $size_min . 'px;';
         echo '--sqc-size-max: ' . $size_max . 'px;';
-        echo '--sqc-size: clamp(var(--sqc-size-min), 3.5vw, var(--sqc-size-max));';
+        
+        $fluid_size = $this->calculateFluidSize($size_min, $size_max);
+        echo '--sqc-size: clamp(' . $fluid_size['min'] . ', ' . $fluid_size['preferred'] . ', ' . $fluid_size['max'] . ');';
         echo '}';
 
         // Anpassen der Button-Größen
