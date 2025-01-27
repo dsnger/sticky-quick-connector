@@ -35,6 +35,13 @@
   left: 50%;
 }
 
+.fixed-contact-button .main-button img,
+.fixed-contact-button .contact-option img {
+  width: 100%;
+  max-width: 90%;
+  object-fit: contain;
+}
+
 
 .fixed-contact-button .main-button:hover,
 .fixed-contact-button .contact-option:hover {

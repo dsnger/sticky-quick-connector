@@ -226,20 +226,6 @@ class ACFFields
                 'default_value' => 'Kontakt',
                 'wrapper' => ['width' => '20'],
               ],
-
-              [
-                'key' => 'field_icon_type_main',
-                'label' => 'Icon Typ',
-                'name' => 'icon_type',
-                'type' => 'radio',
-                'choices' => [
-                  'iconify' => 'Iconify Icon',
-                  'image' => 'Bild',
-                ],
-                'default_value' => 'iconify',
-                'layout' => 'horizontal',
-                'wrapper' => ['width' => '20'],
-              ],
               [
                 'key' => 'field_6791fb35a0a03',
                 'label' => 'Icon',
@@ -249,15 +235,6 @@ class ACFFields
                 'required' => 0,
                 'default_value' => 'mdi:chat-alert',
                 'wrapper' => ['width' => '20'],
-                'conditional_logic' => [
-                  [
-                    [
-                      'field' => 'field_icon_type_main',
-                      'operator' => '==',
-                      'value' => 'iconify',
-                    ]
-                  ]
-                ],
               ],
               [
                 'key' => 'field_6794dfb9ee584',
@@ -270,15 +247,6 @@ class ACFFields
                 'preview_size' => 'thumbnail',
                 'library' => 'all',
                 'wrapper' => ['width' => '20'],
-                'conditional_logic' => [
-                  [
-                    [
-                      'field' => 'field_icon_type_main',
-                      'operator' => '==',
-                      'value' => 'image',
-                    ]
-                  ]
-                ],
               ],
               [
                 'key' => 'field_6791fb2b96f39',
@@ -305,19 +273,6 @@ class ACFFields
                 'wrapper' => ['width' => '20'],
               ],
               [
-                'key' => 'field_icon_type_main_active',
-                'label' => 'Icon Typ (Aktiv)',
-                'name' => 'icon_type_active',
-                'type' => 'radio',
-                'choices' => [
-                  'iconify' => 'Iconify Icon',
-                  'image' => 'Bild',
-                ],
-                'default_value' => 'iconify',
-                'layout' => 'horizontal',
-                'wrapper' => ['width' => '25'],
-              ],
-              [
                 'key' => 'field_6791fb35a0a04',
                 'label' => 'Icon (Aktiv)',
                 'name' => 'icon_active',
@@ -326,36 +281,18 @@ class ACFFields
                 'required' => 0,
                 'default_value' => 'mdi:close',
                 'wrapper' => ['width' => '25'],
-                'conditional_logic' => [
-                  [
-                    [
-                      'field' => 'field_icon_type_main_active',
-                      'operator' => '==',
-                      'value' => 'iconify',
-                    ]
-                  ]
-                ],
               ],
               [
                 'key' => 'field_6794e01bcd2f9',
                 'label' => 'Icon Bild (Aktiv)',
                 'name' => 'icon_image_active',
                 'type' => 'image',
-                'instructions' => 'Wähle ein Bild für den aktiven Zustand.',
+                'instructions' => 'Alternativ kannst du ein Bild für den aktiven Zustand auswählen.',
                 'required' => 0,
                 'return_format' => 'array',
                 'preview_size' => 'thumbnail',
                 'library' => 'all',
                 'wrapper' => ['width' => '25'],
-                'conditional_logic' => [
-                  [
-                    [
-                      'field' => 'field_icon_type_main_active',
-                      'operator' => '==',
-                      'value' => 'image',
-                    ]
-                  ]
-                ],
               ],
               [
                 'key' => 'field_6791fb2b96f40',
@@ -412,52 +349,22 @@ class ACFFields
                 'instructions' => 'URL kann auch "tel:" oder "mailto:"-Links enthalten.',
               ],
               [
-                'key' => 'field_icon_type_contact',
-                'label' => 'Icon Typ',
-                'name' => 'icon_type',
-                'type' => 'radio',
-                'choices' => [
-                  'iconify' => 'Iconify Icon',
-                  'image' => 'Bild',
-                ],
-                'default_value' => 'iconify',
-                'layout' => 'horizontal',
-              ],
-              [
                 'key' => 'field_67912b1c74de8',
                 'label' => 'Icon',
                 'name' => 'icon',
                 'type' => 'text',
                 'instructions' => 'Name des <a href="https://iconify.design/" target="_blank">Iconify-Icon</a> (z.B. mdi:email) oder SVG.',
-                'conditional_logic' => [
-                  [
-                    [
-                      'field' => 'field_icon_type_contact',
-                      'operator' => '==',
-                      'value' => 'iconify',
-                    ]
-                  ]
-                ],
               ],
               [
                 'key' => 'field_6794dfc6476b5',
                 'label' => 'Icon Bild',
                 'name' => 'icon_image',
                 'type' => 'image',
-                'instructions' => 'Wähle ein Bild für den Kontakt.',
+                'instructions' => 'Alternativ kannst du ein Bild für den Kontaktbutton auswählen.',
                 'required' => 0,
                 'return_format' => 'array',
                 'preview_size' => 'thumbnail',
                 'library' => 'all',
-                'conditional_logic' => [
-                  [
-                    [
-                      'field' => 'field_icon_type_contact',
-                      'operator' => '==',
-                      'value' => 'image',
-                    ]
-                  ]
-                ],
               ],
               [
                 'key' => 'field_6791fb161a539',
