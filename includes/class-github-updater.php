@@ -2,6 +2,8 @@
 
 namespace StickyQuickConnector;
 
+use Parsedown;
+
 if (!defined('ABSPATH')) {
   exit;
 }
@@ -42,7 +44,13 @@ class GitHubUpdater
     if (is_null($this->github_response)) {
       $request_uri = sprintf('https://api.github.com/repos/%s/%s/releases/latest', $this->github_username, $this->github_repo);
 
-      $args = [];
+      // Add User-Agent header to avoid GitHub API restrictions
+      $args = [
+        'headers' => [
+          'User-Agent' => 'WordPress/' . get_bloginfo('version')
+        ]
+      ];
+  
       if ($this->authorize_token) {
         $args['headers']['Authorization'] = "Bearer {$this->authorize_token}";
       }
@@ -50,11 +58,13 @@ class GitHubUpdater
       $response = wp_remote_get($request_uri, $args);
 
       if (is_wp_error($response)) {
+        error_log('GitHub Updater Error: ' . $response->get_error_message());
         return false;
       }
 
       $response_code = wp_remote_retrieve_response_code($response);
       if ($response_code !== 200) {
+        error_log('GitHub Updater Error: Response code ' . $response_code);
         return false;
       }
 
@@ -81,7 +91,14 @@ class GitHubUpdater
       return $transient;
     }
 
-    $doUpdate = version_compare($this->github_response->tag_name, $transient->checked[$this->basename], 'gt');
+    // Remove 'v' prefix if present in tag name
+    $latest_version = ltrim($this->github_response->tag_name, 'v');
+    $current_version = $transient->checked[$this->basename];
+
+    // Add debug logging
+    error_log('GitHub Update Check - Current Version: ' . $current_version . ', Latest Version: ' . $latest_version);
+
+    $doUpdate = version_compare($latest_version, $current_version, 'gt');
 
     if ($doUpdate) {
       $package = $this->github_response->zipball_url;
@@ -92,11 +109,14 @@ class GitHubUpdater
 
       $obj = new \stdClass();
       $obj->slug = $this->basename;
-      $obj->new_version = $this->github_response->tag_name;
+      $obj->new_version = $latest_version;
       $obj->url = $this->plugin["PluginURI"];
       $obj->package = $package;
-      $obj->tested = '6.7.1'; // Update with your tested WordPress version
+      $obj->tested = '6.4'; // Update with your tested WordPress version
       $transient->response[$this->basename] = $obj;
+
+      // Add debug logging
+      error_log('GitHub Update Available - Package URL: ' . $package);
     }
 
     return $transient;
@@ -127,14 +147,17 @@ class GitHubUpdater
     $plugin->last_updated = $this->github_response->published_at;
     $plugin->homepage = $this->plugin["PluginURI"];
     $plugin->short_description = $this->plugin["Description"];
+
+    // Use the release body directly as changelog
+    $changelog = nl2br($this->github_response->body);
+
     $plugin->sections = [
-      'description' => $this->plugin["Description"],
-      'changelog' => class_exists('Parsedown')
-        ? \Parsedown::instance()->parse($this->github_response->body)
-        : $this->github_response->body
+        'description' => $this->plugin["Description"],
+        'changelog' => $changelog
     ];
+
     $plugin->download_link = $this->github_response->zipball_url;
-    $plugin->tested = '6.4.3'; // Update with your tested WordPress version
+    $plugin->tested = '6.7.1';
 
     return $plugin;
   }
