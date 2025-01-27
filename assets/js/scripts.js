@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(() => {
         options.forEach((option, index) => {
           const optionRect = option.getBoundingClientRect();
-          optionRect.height = optionRect.height * 2;
+          optionRect.height = optionRect.height * 4;
           const gap = 14;
           let offset = -1 * ((optionRect.height + gap) * index) - (mainButtonRect.height + gap);
 
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       options.forEach((option, index) => {
         option.style.opacity = "0";
-        option.style.transform = "translate(-50%,0) scale(0.5)";
+        option.style.transform = "translate(-50%,0) scale(0.25)";
         option.style.transitionDelay = `${(options.length - index - 1) * 0.1}s`;
       });
 

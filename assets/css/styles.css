@@ -2,17 +2,17 @@
 .fixed-contact-button .main-button {
   position: relative;
   z-index: 9999;
+  transition: all 0.3s ease;
 }
 .fixed-contact-button .main-button,
 .fixed-contact-button .contact-option {
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   font-size: 2.25rem;
   border-radius: 50%; 
-  width: 72px; 
-  height: 72px; 
+  /* width: 72px; 
+  height: 72px;  */
   display: flex; 
   justify-content: center; 
   align-items: center;
@@ -21,8 +21,8 @@
 @media (max-width: 768px) {
   .fixed-contact-button .main-button,
   .fixed-contact-button .contact-option {
-    width: 40px;
-    height: 40px;
+    /* width: 40px;
+    height: 40px; */
     font-size: 1.5rem;
   }
 }
@@ -30,7 +30,8 @@
 .fixed-contact-button .contact-option {
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-50%) scale(0.5);
+  transition: visibility 0.3s ease, opacity 0.3s ease, transform 0.4s ease-out;
+  transform: translateX(-50%) scale(0.25);
   transform-origin: bottom center;
   position: absolute;
   right: auto;
@@ -60,13 +61,13 @@
 }
 
 .fixed-contact-button .contact-options {
+  /* transition: visibility 0.4s ease, opacity 0.4s ease, transform 0.4s ease-in-out; */
   position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 14px;
-  transition: all 0.2s ease;
   inset: 0;
   margin-bottom: 10px;
 }

@@ -95,7 +95,7 @@ class GitHubUpdater
       $obj->new_version = $this->github_response->tag_name;
       $obj->url = $this->plugin["PluginURI"];
       $obj->package = $package;
-      $obj->tested = '6.4.3'; // Update with your tested WordPress version
+      $obj->tested = '6.7.1'; // Update with your tested WordPress version
       $transient->response[$this->basename] = $obj;
     }
 
