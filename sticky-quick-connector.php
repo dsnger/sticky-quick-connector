@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Sticky Quick Connector (DSG Theme)
  * Description: A fixed contact button with extended options based on ACF.
- * Version: 1.0.9
+ * Version: 1.0.11
  * Author: Daniel Sänger (webmaster@daniel-saenger.de)
  * License: private
  * Text Domain: stickyquickconnector
@@ -104,13 +104,13 @@ class StickyQuickConnector
     {
         // Calculate the slope
         $slope = ($maxSize - $minSize) / ($maxVw - $minVw);
-        
+
         // Convert to vw units
         $vw_value = round($slope * 100, 3);
-        
+
         // Calculate the y-intercept
         $intercept = round($minSize - ($slope * $minVw), 2);
-        
+
         return [
             'min' => $minSize . 'px',
             'preferred' => $intercept . 'px + ' . $vw_value . 'vw',
@@ -140,7 +140,7 @@ class StickyQuickConnector
         echo ':root {';
         echo '--sqc-size-min: ' . $size_min . 'px;';
         echo '--sqc-size-max: ' . $size_max . 'px;';
-        
+
         $fluid_size = $this->calculateFluidSize($size_min, $size_max);
         echo '--sqc-size: clamp(' . $fluid_size['min'] . ', ' . $fluid_size['preferred'] . ', ' . $fluid_size['max'] . ');';
         echo '}';
@@ -165,7 +165,7 @@ class StickyQuickConnector
             'icon_image' => [],
             'icon_image_active' => [],
             'bg_color' => 'rgb(246,109,47)',
-            'bg_color_active' => 'rgb(75,48,138)', 
+            'bg_color_active' => 'rgb(75,48,138)',
             'text_color' => 'rgba(255, 255, 255)',
             'text_color_active' => 'rgba(255, 255, 255)',
             'label' => ''

@@ -121,7 +121,7 @@ class ACFFields
             'instructions' => 'Wähle Seiten, Beiträge oder CPTs aus, die den Button nicht anzeigen sollen.',
             'multiple' => 1,
             'return_format' => 'id',
-            'wrapper' => ['width' => '50'],
+            'wrapper' => ['width' => '40'],
           ],
           [
             'key' => 'field_67912e9ce0cb1',
@@ -131,7 +131,7 @@ class ACFFields
             'instructions' => 'Wähle Seiten, Beiträge oder CPTs aus, die den Button explizit anzeigen sollen.',
             'multiple' => 1,
             'return_format' => 'id',
-            'wrapper' => ['width' => '50'],
+            'wrapper' => ['width' => '40'],
           ],
           [
             'key' => 'field_67922b1bd1948',
@@ -241,7 +241,7 @@ class ACFFields
                 'label' => 'Icon Bild',
                 'name' => 'icon_image',
                 'type' => 'image',
-                'instructions' => 'Wähle ein Bild für den Hauptbutton.',
+                'instructions' => 'Alternativ kannst du ein Bild für den Hauptbutton auswählen.',
                 'required' => 0,
                 'return_format' => 'array',
                 'preview_size' => 'thumbnail',

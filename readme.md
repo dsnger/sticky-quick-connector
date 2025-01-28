@@ -23,6 +23,10 @@ Sticky Quick Connector provides an easy way to add floating, always-visible butt
 
 ## Changelog
 
+### 1.0.10
+
+- Added ACF fields for main button
+
 ### 1.0.9
 
 - ACF Fields updated
