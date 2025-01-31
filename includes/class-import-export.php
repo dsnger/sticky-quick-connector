@@ -88,12 +88,15 @@ class ImportExport
       'sqc_position_y_alignment' => get_field('sqc_position_y_alignment', 'option'),
       'sqc_exclude_pages' => get_field('sqc_exclude_pages', 'option'),
       'sqc_include_pages' => get_field('sqc_include_pages', 'option'),
+      'sqc_show_on_special_pages' => get_field('sqc_show_on_special_pages', 'option'),
+      'sqc_hide_on_special_pages' => get_field('sqc_hide_on_special_pages', 'option'),
       'sqc_display_trigger' => get_field('sqc_display_trigger', 'option'),
       'sqc_display_delay' => get_field('sqc_display_delay', 'option'),
       'sqc_scroll_distance' => get_field('sqc_scroll_distance', 'option'),
       'sqc_custom_css' => get_field('sqc_custom_css', 'option'),
       'sqc_main_button' => get_field('sqc_main_button', 'option'),
       'sqc_connectors' => get_field('sqc_connectors', 'option'),
+
     ];
 
     // Set headers for JSON download
