@@ -34,6 +34,8 @@ class StickyQuickConnector
     {
         register_uninstall_hook(__FILE__, [__CLASS__, 'uninstall']);
         add_action('admin_init', [$this, 'checkDependencies']);
+        add_filter('acf/load_field/key=field_679cda770fc4e', array(__CLASS__, 'load_special_pages_acf_choices'));
+        add_filter('acf/load_field/key=field_679cd988ec1ab', array(__CLASS__, 'load_special_pages_acf_choices'));
 
         if ($this->isAcfActive()) {
             add_action('init', [$this, 'registerAssets']);
@@ -91,6 +93,112 @@ class StickyQuickConnector
         }, 10, 2);
     }
 
+
+    public static function load_special_pages_acf_choices($field)
+    {
+        // Basic choices (already in field definition)
+        $choices = $field['choices'];
+
+        // Add general single and archive options
+        $choices['single'] = 'Alle Detailseiten';
+        $choices['archive'] = 'Alle Archivseiten';
+
+        // Post Types
+        $post_types = get_post_types(array(
+            'public' => true,
+            '_builtin' => false
+        ), 'objects');
+
+        // Add built-in post type 'post'
+        $post_types['post'] = get_post_type_object('post');
+
+        // Add single and archive options for each post type
+        foreach ($post_types as $post_type) {
+            // Add single page option
+            $choices['single_' . $post_type->name] = sprintf(
+                'Detailseite-%s',
+                $post_type->labels->singular_name
+            );
+
+            // Add archive option if available
+            if ($post_type->has_archive || $post_type->name === 'post') {
+                $choices['archive_' . $post_type->name] = sprintf(
+                    'Archiv-%s',
+                    $post_type->labels->name
+                );
+            }
+        }
+
+        // Taxonomies
+        $taxonomies = get_taxonomies(array(
+            'public' => true
+        ), 'objects');
+
+        foreach ($taxonomies as $taxonomy) {
+            $choices['taxonomy_' . $taxonomy->name] = sprintf(
+                'Archiv-%s',
+                $taxonomy->labels->name
+            );
+        }
+
+        $field['choices'] = $choices;
+        return $field;
+    }
+
+    private function get_current_special_page_type()
+    {
+        $types = array();
+
+        if (is_home() || is_front_page()) {
+            $types[] = 'blog';
+        }
+
+        if (is_search()) {
+            $types[] = 'search';
+        }
+
+        if (is_author()) {
+            $types[] = 'author';
+        }
+
+        if (is_404()) {
+            $types[] = '404';
+        }
+
+        // Single post type pages
+        if (is_single()) {
+            // General single page type
+            $types[] = 'single';
+
+            // Specific post type
+            $post_type = get_post_type();
+            if ($post_type) {
+                $types[] = 'single_' . $post_type;
+            }
+        }
+
+        // Archive Checks
+        if (is_archive()) {
+            // General archive type
+            $types[] = 'archive';
+
+            // Post Type Archive
+            $post_type = get_post_type();
+            if ($post_type) {
+                $types[] = 'archive_' . $post_type;
+            }
+
+            // Taxonomy Archive
+            $queried_object = get_queried_object();
+            if ($queried_object instanceof \WP_Term) {
+                $types[] = 'taxonomy_' . $queried_object->taxonomy;
+            }
+        }
+
+        return $types;
+    }
+
+
     /**
      * Calculate fluid size values for CSS clamp
      * 
@@ -126,6 +234,41 @@ class StickyQuickConnector
         // Ensure button is active
         $button_active = get_field('sqc_activate_button', 'option');
         if (!$button_active) return;
+
+        // Exclude/Include logic - moved to top for early return
+        $exclude_pages = get_field('sqc_exclude_pages', 'option');
+        $include_pages = get_field('sqc_include_pages', 'option');
+        $current_post_id = get_the_ID();
+
+        $special_pages = self::get_current_special_page_type();
+
+        if (is_array($exclude_pages) && in_array($current_post_id, $exclude_pages)) return;
+        if (is_array($include_pages) && !empty($include_pages) && !in_array($current_post_id, $include_pages)) return;
+
+        // Show only on selected special pages
+        $show_on_special_pages = get_field('sqc_show_on_special_pages', 'option');
+        if (!empty($show_on_special_pages)) {
+            $show_on_special = false;
+            foreach ($special_pages as $type) {
+                if (in_array($type, $show_on_special_pages)) {
+                    $show_on_special = true;
+                    break;
+                }
+            }
+            if (!$show_on_special) {
+                return;
+            }
+        }
+
+        // Hide on selected special pages
+        $hide_on_special_pages = get_field('sqc_hide_on_special_pages', 'option');
+        if (!empty($hide_on_special_pages)) {
+            foreach ($special_pages as $type) {
+                if (in_array($type, $hide_on_special_pages)) {
+                    return;
+                }
+            }
+        }
 
         // Get main settings with defaults
         $main_button = get_field('sqc_main_button', 'option') ?: [];
@@ -177,14 +320,6 @@ class StickyQuickConnector
         $position_x_alignment = get_field('sqc_position_x_alignment', 'option') ?: 'right';
         $position_y_alignment = get_field('sqc_position_y_alignment', 'option') ?: 'bottom';
 
-        // Exclude/Include logic
-        $exclude_pages = get_field('sqc_exclude_pages', 'option');
-        $include_pages = get_field('sqc_include_pages', 'option');
-        $current_post_id = get_the_ID();
-
-        if (is_array($exclude_pages) && in_array($current_post_id, $exclude_pages)) return;
-        if (is_array($include_pages) && !empty($include_pages) && !in_array($current_post_id, $include_pages)) return;
-
         // Enqueue styles and scripts
         wp_enqueue_style('custom-connector-styles');
         wp_enqueue_script('custom-connector-scripts');
@@ -217,14 +352,14 @@ class StickyQuickConnector
         }
 
         // Render the contact button and options
-        echo '<div class="fixed-contact-button" 
+        echo '<div class="fixed-contact-button"
             style="position: fixed; ' . esc_attr(implode('; ', $position_styles)) . '; z-index: 9999; opacity: 0; visibility: hidden;" 
             data-trigger-type="' . esc_attr(get_field('sqc_display_trigger', 'option') ?: 'immediate') . '"
             data-time-delay="' . esc_attr(get_field('sqc_display_delay', 'option') ?: 0) . '"
             data-scroll-distance="' . esc_attr(get_field('sqc_scroll_distance', 'option') ?: 25) . '">';
 
         // Main button tooltip with left position
-        echo '<button id="toggle-contact-options" class="main-button" 
+        echo '<button id="toggle-contact-options" class="main-button"
             style="background-color: ' . esc_attr($main_button['bg_color']) . '; color: ' . esc_attr($main_button['text_color']) . ';"
             data-icon-default="' . esc_attr($main_button['icon']) . '"
             data-icon-active="' . esc_attr($main_button['icon_active']) . '"
@@ -350,9 +485,7 @@ class StickyQuickConnector
 <?php
     }
 
-    /**
-     * Validate URL or custom links like tel: and mailto:
-     */
+
     private function validateUrl($url)
     {
         // If URL is empty, check if we have HTML attributes in the parent array
@@ -375,9 +508,7 @@ class StickyQuickConnector
         return false; // Invalid URL
     }
 
-    /**
-     * Validate URL field to allow tel: and mailto: links.
-     */
+
     public function validateUrlField($valid, $value, $field, $input)
     {
         if (!$valid) {
