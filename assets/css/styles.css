@@ -36,7 +36,9 @@
 }
 
 .fixed-contact-button .main-button img,
-.fixed-contact-button .contact-option img {
+.fixed-contact-button .contact-option img,
+.fixed-contact-button .main-button svg,
+.fixed-contact-button .contact-option svg {
   width: 100%;
   max-width: 90%;
   object-fit: contain;
