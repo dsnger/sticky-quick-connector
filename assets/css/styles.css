@@ -13,9 +13,10 @@
   display: flex; 
   justify-content: center; 
   align-items: center;
-  padding: 7px;
+  padding: 12px;
   box-sizing: border-box;
 }
+
 
 @media (max-width: 768px) {
   .fixed-contact-button .main-button,
@@ -23,6 +24,7 @@
     /* width: 40px;
     height: 40px; */
     font-size: 1.5rem;
+    padding: 8px;
   }
 }
 
