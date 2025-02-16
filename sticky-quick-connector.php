@@ -235,15 +235,17 @@ class StickyQuickConnector
         $button_active = get_field('sqc_activate_button', 'option');
         if (!$button_active) return;
 
-        // Exclude/Include logic - moved to top for early return
-        $exclude_pages = get_field('sqc_exclude_pages', 'option');
-        $include_pages = get_field('sqc_include_pages', 'option');
-        $current_post_id = get_the_ID();
-
         $special_pages = self::get_current_special_page_type();
 
-        if (is_array($exclude_pages) && in_array($current_post_id, $exclude_pages)) return;
-        if (is_array($include_pages) && !empty($include_pages) && !in_array($current_post_id, $include_pages)) return;
+
+        if ( is_singular() ) {
+            $current_post_id = get_the_ID();
+            $exclude_pages = get_field('sqc_hide_on_posts', 'option');
+            $include_pages = get_field('sqc_show_on_posts', 'option');
+
+            if (is_array($exclude_pages) && in_array($current_post_id, $exclude_pages)) return;
+            if (is_array($include_pages) && !empty($include_pages) && !in_array($current_post_id, $include_pages)) return;
+        }
 
         // Show only on selected special pages
         $show_on_special_pages = get_field('sqc_show_on_special_pages', 'option');
