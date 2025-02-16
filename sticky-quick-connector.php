@@ -231,9 +231,11 @@ class StickyQuickConnector
      */
     public function renderContactButton()
     {
-        // Ensure button is active
+        // Ensure the button is active.
         $button_active = get_field('sqc_activate_button', 'option');
-        if (!$button_active) return;
+        if (!$button_active) {
+            return;
+        }
 
         $special_pages = self::get_current_special_page_type();
 
@@ -316,49 +318,110 @@ class StickyQuickConnector
             'label' => ''
         ], $main_button);
 
-        // Get positioning with defaults
-        $position_x = get_field('sqc_position_x', 'option') ?: 20;
-        $position_y = get_field('sqc_position_y', 'option') ?: 20;
-        $position_x_alignment = get_field('sqc_position_x_alignment', 'option') ?: 'right';
-        $position_y_alignment = get_field('sqc_position_y_alignment', 'option') ?: 'bottom';
+        // Retrieve mobile position fields.
+        $position_x_mobile = intval(get_field('sqc_position_x', 'option') ?: 20);
+        $position_y_mobile = intval(get_field('sqc_position_y', 'option') ?: 20);
+        $position_x_mobile_alignment = get_field('sqc_position_x_alignment', 'option') ?: 'right';
+        $position_y_mobile_alignment = get_field('sqc_position_y_alignment', 'option') ?: 'bottom';
 
-        // Enqueue styles and scripts
+        // Retrieve desktop position fields.
+        $position_x_dtp = intval(get_field('sqc_position_x_dtp', 'option') ?: 20);
+        $position_y_dtp = intval(get_field('sqc_position_y_dtp', 'option') ?: 20);
+        $position_x_dtp_alignment = get_field('sqc_position_x_alignment_dtp', 'option') ?: 'right';
+        $position_y_dtp_alignment = get_field('sqc_position_y_alignment_dtp', 'option') ?: 'bottom';
+
+        // Desktop breakpoint.
+        $desktop_breakpoint = intval(get_field('field_67b21c4884e6c', 'option') ?: 768);
+
+        /*
+         * Determine mobile CSS variables.
+         * For horizontal values: if alignment is left, set left offset; if right, set right offset.
+         */
+        $mobile_left  = $position_x_mobile_alignment === 'left' ? "{$position_x_mobile}px" : "auto";
+        $mobile_right = $position_x_mobile_alignment === 'right' ? "{$position_x_mobile}px" : "auto";
+
+        // For vertical values, we also add a transform in case of center alignment.
+        if ($position_y_mobile_alignment === 'top') {
+            $mobile_top       = "{$position_y_mobile}px";
+            $mobile_bottom    = "auto";
+            $mobile_transform = "none";
+        } elseif ($position_y_mobile_alignment === 'center') {
+            $mobile_top       = "50%";
+            $mobile_bottom    = "auto";
+            $mobile_transform = "translateY(-50%)";
+        } else {
+            $mobile_bottom    = "{$position_y_mobile}px";
+            $mobile_top       = "auto";
+            $mobile_transform = "none";
+        }
+
+        /*
+         * Determine desktop CSS variables.
+         */
+        $desktop_left  = $position_x_dtp_alignment === 'left' ? "{$position_x_dtp}px" : "auto";
+        $desktop_right = $position_x_dtp_alignment === 'right' ? "{$position_x_dtp}px" : "auto";
+
+        if ($position_y_dtp_alignment === 'top') {
+            $desktop_top       = "{$position_y_dtp}px";
+            $desktop_bottom    = "auto";
+            $desktop_transform = "none";
+        } elseif ($position_y_dtp_alignment === 'center') {
+            $desktop_top       = "50%";
+            $desktop_bottom    = "auto";
+            $desktop_transform = "translateY(-50%)";
+        } else {
+            $desktop_bottom    = "{$position_y_dtp}px";
+            $desktop_top       = "auto";
+            $desktop_transform = "none";
+        }
+
+        /*
+         * Build an inline style attribute that defines CSS variables.
+         * These variables are later used within the element's style rules,
+         * either inline or via an inline media query below.
+         */
+        $inline_style  = "position: fixed; z-index: 9999; opacity: 0; visibility: hidden;";
+        $inline_style .= " --sqc-mobile-left: {$mobile_left};";
+        $inline_style .= " --sqc-mobile-right: {$mobile_right};";
+        $inline_style .= " --sqc-mobile-top: {$mobile_top};";
+        $inline_style .= " --sqc-mobile-bottom: {$mobile_bottom};";
+        $inline_style .= " --sqc-mobile-transform: {$mobile_transform};";
+        $inline_style .= " --sqc-desktop-left: {$desktop_left};";
+        $inline_style .= " --sqc-desktop-right: {$desktop_right};";
+        $inline_style .= " --sqc-desktop-top: {$desktop_top};";
+        $inline_style .= " --sqc-desktop-bottom: {$desktop_bottom};";
+        $inline_style .= " --sqc-desktop-transform: {$desktop_transform};";
+
+        // Output an inline <style> block that uses the CSS variables.
+        // (You could also put these rules in your external stylesheet.)
+        echo '<style>';
+        echo '.fixed-contact-button {';
+        echo '  left: var(--sqc-mobile-left);';
+        echo '  right: var(--sqc-mobile-right);';
+        echo '  top: var(--sqc-mobile-top);';
+        echo '  bottom: var(--sqc-mobile-bottom);';
+        echo '  transform: var(--sqc-mobile-transform);';
+        echo '}';
+        echo "@media (min-width: {$desktop_breakpoint}px) {";
+        echo '  .fixed-contact-button {';
+        echo '    left: var(--sqc-desktop-left);';
+        echo '    right: var(--sqc-desktop-right);';
+        echo '    top: var(--sqc-desktop-top);';
+        echo '    bottom: var(--sqc-desktop-bottom);';
+        echo '    transform: var(--sqc-desktop-transform);';
+        echo '  }';
+        echo '}';
+        echo '</style>';
+
+        // Enqueue the registered styles and scripts.
         wp_enqueue_style('custom-connector-styles');
         wp_enqueue_script('custom-connector-scripts');
 
-        // Calculate position styles
-        $position_styles = [];
-
-        // Horizontal positioning
-        if ($position_x_alignment === 'left') {
-            $position_styles[] = "left: {$position_x}px";
-            $position_styles[] = "right: auto";
-        } else {
-            $position_styles[] = "right: {$position_x}px";
-            $position_styles[] = "left: auto";
-        }
-
-        // Vertical positioning
-        if ($position_y_alignment === 'top') {
-            $position_styles[] = "top: {$position_y}px";
-            $position_styles[] = "bottom: auto";
-            $position_styles[] = "transform: none";
-        } elseif ($position_y_alignment === 'center') {
-            $position_styles[] = "top: 50%";
-            $position_styles[] = "bottom: auto";
-            $position_styles[] = "transform: translateY(-50%)";
-        } else {
-            $position_styles[] = "bottom: {$position_y}px";
-            $position_styles[] = "top: auto";
-            $position_styles[] = "transform: none";
-        }
-
-        // Render the contact button and options
-        echo '<div class="fixed-contact-button"
-            style="position: fixed; ' . esc_attr(implode('; ', $position_styles)) . '; z-index: 9999; opacity: 0; visibility: hidden;" 
-            data-trigger-type="' . esc_attr(get_field('sqc_display_trigger', 'option') ?: 'immediate') . '"
-            data-time-delay="' . esc_attr(get_field('sqc_display_delay', 'option') ?: 0) . '"
-            data-scroll-distance="' . esc_attr(get_field('sqc_scroll_distance', 'option') ?: 25) . '">';
+        // Render the container using the inline style with the CSS variable definitions.
+        echo '<div class="fixed-contact-button" style="' . esc_attr($inline_style) . '"';
+        echo ' data-trigger-type="' . esc_attr(get_field('sqc_display_trigger', 'option') ?: 'immediate') . '"';
+        echo ' data-time-delay="' . esc_attr(get_field('sqc_display_delay', 'option') ?: 0) . '"';
+        echo ' data-scroll-distance="' . esc_attr(get_field('sqc_scroll_distance', 'option') ?: 25) . '">';
 
         // Main button tooltip with left position
         echo '<button id="toggle-contact-options" class="main-button"
@@ -368,8 +431,7 @@ class StickyQuickConnector
             data-bg-default="' . esc_attr($main_button['bg_color']) . '"
             data-bg-active="' . esc_attr($main_button['bg_color_active']) . '"
             data-text-default="' . esc_attr($main_button['text_color']) . '"
-            data-text-active="' . esc_attr($main_button['text_color_active']) . '"
-            data-position-y="' . esc_attr($position_y_alignment) . '"';
+            data-text-active="' . esc_attr($main_button['text_color_active']) . '"';
         if ($main_button['label']) {
             echo ' uk-tooltip="title: ' . esc_attr($main_button['label']) . '; pos: left"';
         }
