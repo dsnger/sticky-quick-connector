@@ -27,6 +27,7 @@ Sticky Quick Connector provides an easy way to add floating, always-visible butt
 
 - Added separate position options for mobile devices
 - ACF fields updated
+- Bugfix: Display rules for special pages updated
 
 ### 1.0.11
 
