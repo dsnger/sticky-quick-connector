@@ -23,6 +23,11 @@ Sticky Quick Connector provides an easy way to add floating, always-visible butt
 
 ## Changelog
 
+### 1.0.12
+
+- Added separate position options for mobile devices
+- ACF fields updated
+
 ### 1.0.11
 
 - Added special page support. Buttons can now be shown or hidden based on the current page type like "Home", "Blog", "Single Post" or "Archive".
