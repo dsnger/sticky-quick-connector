@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Sticky Quick Connector (DSG Theme)
  * Description: A fixed contact button for expandable link or contact options with flexible setting options based on ACF.
- * Version: 1.0.13
+ * Version: 1.0.14
  * Author: Daniel Sänger (webmaster@daniel-saenger.de)
  * License: MIT
  * Text Domain: stickyquickconnector
@@ -30,6 +30,9 @@ class StickyQuickConnector
     private $import_export;
     private $acf_fields;
     public $page_id;
+    private $button_active = false;
+    private $enqueue_iconify_scripts = false;
+    private $backwards_compatibility = false;
 
 
     public function __construct($page_id = null)
@@ -54,8 +57,20 @@ class StickyQuickConnector
             // Initialize Import/Export functionality
             require_once __DIR__ . '/includes/class-import-export.php';
             $this->import_export = new ImportExport();
+
+            add_action('acf/init', [$this, 'init']);
         }
     }
+
+
+    public function init()
+    {
+        $this->button_active = get_field('sqc_activate_button', 'option');
+        $this->enqueue_iconify_scripts = get_field('sqc_iconify_scripts', 'option');
+        $this->backwards_compatibility = get_field('sqc_iconify_bwcomp', 'option') === 'old' || !$this->enqueue_iconify_scripts;
+
+    }
+
 
     public static function uninstall()
     {
@@ -236,31 +251,34 @@ class StickyQuickConnector
     public function renderContactButton()
     {
         // Ensure the button is active.
-        $button_active = get_field('sqc_activate_button', 'option');
-        if (!$button_active) {
-            return;
-        }
+        if (!$this->button_active) return;
 
-        $current_post_id = $this->page_id;
+        $this->enqueueIconifyScripts();
+
+        $current_post_id = get_the_ID();
         $exclude_pages = get_field('sqc_hide_on_posts', 'option');
         $include_pages = get_field('sqc_show_on_posts', 'option');
+        $show_on_special_pages = get_field('sqc_show_on_special_pages', 'option');
 
+        if (is_singular() && empty($show_on_special_pages)) {
 
-        if (is_singular()) {
-
-            if (empty($exclude_pages) || (is_array($exclude_pages) && !in_array($current_post_id, $exclude_pages))) {
+            if (!empty($exclude_pages) && (is_array($exclude_pages) && !in_array($current_post_id, $exclude_pages))) {
                 return;
             }
 
-            if (empty($include_pages) || (is_array($include_pages) && !in_array($current_post_id, $include_pages))) {
+            if (!empty($include_pages) && (is_array($include_pages) && !in_array($current_post_id, $include_pages))) {
+                return;
+            }
+        }
+
+        if (is_singular() && !empty($show_on_special_pages)) {
+
+            if (!empty($include_pages) && (is_array($include_pages) && !in_array($current_post_id, $include_pages))) {
                 return;
             }
         }
 
         $special_pages = self::get_current_special_page_type();
-
-        // Show only on selected special pages
-        $show_on_special_pages = get_field('sqc_show_on_special_pages', 'option');
 
         if (!empty($show_on_special_pages)) {
             $show_on_special = false;
@@ -449,12 +467,14 @@ class StickyQuickConnector
         echo '>';
 
         if (!empty($main_button['icon'])) {
-            echo '<span class="iconify icon-default" data-icon="' . esc_attr($main_button['icon']) . '"></span>';
+            //echo '<span class="iconify icon-default" data-icon="' . esc_attr($main_button['icon']) . '"></span>';
+            echo $this->getIconifyIcon(array('icon' => $main_button['icon'],'class' => 'icon-default'));
         } elseif (!empty($main_button['icon_image'])) {
             echo '<img src="' . esc_url($main_button['icon_image']['url']) . '" alt="' . esc_attr($main_button['icon_image']['alt']) . '" class="icon-image icon-default" />';
         }
         if (!empty($main_button['icon_active'])) {
-            echo '<span class="iconify icon-active" data-icon="' . esc_attr($main_button['icon_active']) . '" style="display: none;"></span>';
+            //echo '<span class="iconify icon-active" data-icon="' . esc_attr($main_button['icon_active']) . '" style="display: none;"></span>';
+            echo $this->getIconifyIcon(array('icon' => $main_button['icon_active'], 'style' => 'display: none;"', 'class' => 'icon-active'));
         } elseif (!empty($main_button['icon_image_active'])) {
             echo '<img src="' . esc_url($main_button['icon_image_active']['url']) . '" alt="' . esc_attr($main_button['icon_image_active']['alt']) . '" class="icon-image icon-active" style="display: none;" />';
         }
@@ -500,7 +520,8 @@ class StickyQuickConnector
                 echo '>';
 
                 if (!empty($contact['icon'])) {
-                    echo '<span class="iconify" data-icon="' . esc_attr($contact['icon']) . '" data-inline="false"></span>';
+                    //echo '<span class="iconify" data-icon="' . esc_attr($contact['icon']) . '" data-inline="false"></span>';
+                    echo $this->getIconifyIcon(array('icon' => $contact['icon'], 'data' => 'inline="false"'));
                 } elseif (!empty($contact['icon_image'])) {
                     echo '<img src="' . esc_url($contact['icon_image']['url']) . '" alt="' . esc_attr($contact['icon_image']['alt']) . '" class="icon-image" />';
                 }
@@ -557,7 +578,37 @@ class StickyQuickConnector
                 }
             });
         </script>
-<?php
+    <?php
+    }
+
+
+    private function getIconifyIcon($icon_attr) {
+        if (empty($icon_attr) || !isset($icon_attr['icon'])) {
+            return '';
+        }
+        $class = !empty($icon_attr['class']) && is_array($icon_attr['class']) ? implode(' ', $icon_attr['class']) : (!empty($icon_attr['class']) && !is_array($icon_attr['class']) ? $icon_attr['class'] : '');
+        $style = !empty($icon_attr['style']) ? 'style="' . $icon_attr['style'] . '"' : '';
+        $data = !empty($icon_attr['data']) && is_array($icon_attr['data']) ? implode(' data-', $icon_attr['data']) : (!empty($icon_attr['data']) && !is_array($icon_attr['data']) ? 'data-' . $icon_attr['data'] : '');
+
+        $width = !empty($icon_attr['width']) ? 'width="' . $icon_attr['width'] . '"' : '';
+        $height = !empty($icon_attr['height']) ? 'height="' . $icon_attr['height'] . '"' : '';
+
+        if ($this->backwards_compatibility) {
+            $icon = '<span class="iconify ' . $class . '" data-icon="' . $icon_attr['icon'] . '" ' . $width . ' ' . $height . ' ' . $style . '" ' . $data . '></span>';
+        } else {
+            $icon = '<iconify-icon class="iconify ' . $class . '" icon="' . $icon_attr['icon'] . '" ' . $width . ' ' . $height . ' ' . $style . '" ' . $data . '"></iconify-icon>';
+        }
+
+        return $icon;
+    }
+
+
+    private function enqueueIconifyScripts()
+    {
+        // $iconify_scripts = get_field('iconify_scripts', 'option');
+        if ($this->enqueue_iconify_scripts) {
+            wp_enqueue_script('iconify-icon', __FILE__ . '/assets/js/iconify-icon.min.js');
+        }
     }
 
 
@@ -610,8 +661,7 @@ class StickyQuickConnector
 
     public function addCustomCSS()
     {
-        $button_active = get_field('sqc_activate_button', 'option');
-        if (!$button_active) return;
+        if (!$this->button_active) return;
 
         $custom_css = get_field('sqc_custom_css', 'option');
         if ($custom_css) {

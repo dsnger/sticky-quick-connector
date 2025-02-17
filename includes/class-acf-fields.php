@@ -24,7 +24,7 @@ class ACFFields
         'title' => 'Quick Connector Optionen',
         'fields' => [
           [
-            'key' => 'field_display_tab',
+            'key' => 'field_67b345aa87d21',
             'label' => 'Anzeige',
             'name' => '',
             'type' => 'tab',
@@ -84,7 +84,7 @@ class ACFFields
             'endpoint' => 0,
           ],
           [
-            'key' => 'field_mobile_position_tab',
+            'key' => 'field_67b345bdada36',
             'label' => 'Mobile Position',
             'name' => '',
             'type' => 'tab',
@@ -140,7 +140,7 @@ class ACFFields
             'wrapper' => ['width' => '50'],
           ],
           [
-            'key' => 'field_desktop_position_tab',
+            'key' => 'field_67b345e201553',
             'label' => 'Desktop Position',
             'name' => '',
             'type' => 'tab',
@@ -611,6 +611,49 @@ class ACFFields
               ],
             ],
           ],
+          [
+            'key' => 'field_67b34631e6602',
+            'label' => 'Einstellungen',
+            'name' => '',
+            'type' => 'tab',
+            'placement' => 'top',
+          ],
+          [
+            'key' => 'field_67b3465062f5e',
+            'label' => 'Iconfiy-Icon Script über dieses Plugin einbinden',
+            'name' => 'sqc_iconify_scripts',
+            'type' => 'true_false',
+            'instructions' => 'Aktiviere das Script zum Anzeigen von Iconify-Icons. Dies ist notwendig wenn bereits Iconify-Icons im Theme verwendet werden.',
+            'ui' => 1,
+            'on_text' => 'Aktivieren',
+            'off_text' => 'Deaktivieren',
+            'default_value' => false,
+            'wrapper' => ['width' => '50'],
+          ],
+          [
+            'key' => 'field_67b3471310e0d',
+            'label' => 'Kompatibilität mit älterer Iconify-Version',
+            'name' => 'sqc_iconify_bwcomp',
+            'type' => 'radio',
+            'instructions' => 'Kompatibilität mit älterer Iconify-Version (< 2.3.0).',
+            'ui' => 1,
+            'choices' => [
+              'old' => 'Version (2.0.0)',
+              'new' => 'Neue Version (ab 2.3.0)',
+            ],
+            'conditional_logic' => [
+              [
+                [
+                  'field' => 'field_67b3465062f5e',
+                  'operator' => '==',
+                  'value' => false,
+                ]
+              ]
+            ],
+            'layout' => 'horizontal',
+            'default_value' => 'old',
+            'wrapper' => ['width' => '50'],
+          ]
         ],
         'location' => [
           [

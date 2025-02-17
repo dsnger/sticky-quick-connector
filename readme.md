@@ -23,6 +23,12 @@ Sticky Quick Connector provides an easy way to add floating, always-visible butt
 
 ## Changelog
 
+### 1.0.14
+
+- Added compatibility with Iconify 2.3.0
+- Added option to choose between old and new Iconify version
+- Added option to enqueue iconify scripts (if not already existing)
+
 ### 1.0.13
 
 - Bugfix: Display rules for posts and pages updated
