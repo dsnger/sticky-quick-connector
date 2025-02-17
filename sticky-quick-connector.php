@@ -3,9 +3,9 @@
 /**
  * Plugin Name: Sticky Quick Connector (DSG Theme)
  * Description: A fixed contact button for expandable link or contact options with flexible setting options based on ACF.
- * Version: 1.0.12
+ * Version: 1.0.13
  * Author: Daniel Sänger (webmaster@daniel-saenger.de)
- * License: private
+ * License: MIT
  * Text Domain: stickyquickconnector
  */
 
@@ -29,9 +29,13 @@ class StickyQuickConnector
 {
     private $import_export;
     private $acf_fields;
+    public $page_id;
 
-    public function __construct()
+
+    public function __construct($page_id = null)
     {
+        $this->page_id = $page_id ? $page_id : get_the_ID();
+
         register_uninstall_hook(__FILE__, [__CLASS__, 'uninstall']);
         add_action('admin_init', [$this, 'checkDependencies']);
         add_filter('acf/load_field/key=field_679cda770fc4e', array(__CLASS__, 'load_special_pages_acf_choices'));
@@ -237,20 +241,27 @@ class StickyQuickConnector
             return;
         }
 
-        $special_pages = self::get_current_special_page_type();
+        $current_post_id = $this->page_id;
+        $exclude_pages = get_field('sqc_hide_on_posts', 'option');
+        $include_pages = get_field('sqc_show_on_posts', 'option');
 
 
-        if ( is_singular() ) {
-            $current_post_id = get_the_ID();
-            $exclude_pages = get_field('sqc_hide_on_posts', 'option');
-            $include_pages = get_field('sqc_show_on_posts', 'option');
+        if (is_singular()) {
 
-            if (is_array($exclude_pages) && in_array($current_post_id, $exclude_pages)) return;
-            if (is_array($include_pages) && !empty($include_pages) && !in_array($current_post_id, $include_pages)) return;
+            if (empty($exclude_pages) || (is_array($exclude_pages) && !in_array($current_post_id, $exclude_pages))) {
+                return;
+            }
+
+            if (empty($include_pages) || (is_array($include_pages) && !in_array($current_post_id, $include_pages))) {
+                return;
+            }
         }
+
+        $special_pages = self::get_current_special_page_type();
 
         // Show only on selected special pages
         $show_on_special_pages = get_field('sqc_show_on_special_pages', 'option');
+
         if (!empty($show_on_special_pages)) {
             $show_on_special = false;
             foreach ($special_pages as $type) {

@@ -23,6 +23,10 @@ Sticky Quick Connector provides an easy way to add floating, always-visible butt
 
 ## Changelog
 
+### 1.0.13
+
+- Bugfix: Display rules for posts and pages updated
+
 ### 1.0.12
 
 - Added separate position options for mobile devices
