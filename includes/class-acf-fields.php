@@ -620,10 +620,10 @@ class ACFFields
           ],
           [
             'key' => 'field_67b3465062f5e',
-            'label' => 'Iconfiy-Icon Script über dieses Plugin einbinden',
+            'label' => 'Iconfiy-Icon Script einbinden',
             'name' => 'sqc_iconify_scripts',
             'type' => 'true_false',
-            'instructions' => 'Aktiviere das Script zum Anzeigen von Iconify-Icons. Dies ist notwendig wenn bereits Iconify-Icons im Theme verwendet werden.',
+            'instructions' => 'Aktiviere das Script zum Anzeigen von Iconify-Icons, falls Iconify-Icons nicht bereits im Theme verwendet werden.',
             'ui' => 1,
             'on_text' => 'Aktivieren',
             'off_text' => 'Deaktivieren',
@@ -635,7 +635,7 @@ class ACFFields
             'label' => 'Kompatibilität mit älterer Iconify-Version',
             'name' => 'sqc_iconify_bwcomp',
             'type' => 'radio',
-            'instructions' => 'Kompatibilität mit älterer Iconify-Version (< 2.3.0).',
+            'instructions' => '',
             'ui' => 1,
             'choices' => [
               'old' => 'Version (2.0.0)',

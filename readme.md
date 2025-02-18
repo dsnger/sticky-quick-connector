@@ -23,6 +23,11 @@ Sticky Quick Connector provides an easy way to add floating, always-visible butt
 
 ## Changelog
 
+### 1.0.15
+
+- Changed: ACF Field for compatibility to radio button
+- Bugfix: Iconify compatibility logic
+
 ### 1.0.14
 
 - Added compatibility with Iconify 2.3.0

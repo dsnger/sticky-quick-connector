@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Sticky Quick Connector (DSG Theme)
  * Description: A fixed contact button for expandable link or contact options with flexible setting options based on ACF.
- * Version: 1.0.14
+ * Version: 1.0.15
  * Author: Daniel Sänger (webmaster@daniel-saenger.de)
  * License: MIT
  * Text Domain: stickyquickconnector
@@ -67,8 +67,10 @@ class StickyQuickConnector
     {
         $this->button_active = get_field('sqc_activate_button', 'option');
         $this->enqueue_iconify_scripts = get_field('sqc_iconify_scripts', 'option');
-        $this->backwards_compatibility = get_field('sqc_iconify_bwcomp', 'option') === 'old' || !$this->enqueue_iconify_scripts;
-
+        $this->backwards_compatibility = get_field('sqc_iconify_bwcomp', 'option') === 'old';
+        if ($this->enqueue_iconify_scripts) {
+            $this->backwards_compatibility = false;
+        }
     }
 
 
