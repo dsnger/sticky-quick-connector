@@ -85,15 +85,36 @@ class GitHubUpdater
       return $transient;
     }
 
+    // Validate basename exists and is not empty
+    if (empty($this->basename)) {
+      return $transient;
+    }
+
     $this->get_repository_info();
 
     if (is_null($this->github_response)) {
       return $transient;
     }
 
+    // Validate we have a tag_name from GitHub response
+    if (empty($this->github_response->tag_name)) {
+      return $transient;
+    }
+
     // Remove 'v' prefix if present in tag name
     $latest_version = ltrim($this->github_response->tag_name, 'v');
+    
+    // Check if our plugin exists in the checked array
+    if (!isset($transient->checked[$this->basename])) {
+      return $transient;
+    }
+    
     $current_version = $transient->checked[$this->basename];
+
+    // Validate both versions are valid strings before comparison
+    if (empty($current_version) || empty($latest_version)) {
+      return $transient;
+    }
 
     // Add debug logging
     //error_log('GitHub Update Check - Current Version: ' . $current_version . ', Latest Version: ' . $latest_version);
